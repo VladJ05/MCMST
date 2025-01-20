@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('{{ url_for('static', filename='es.jpeg') }}') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .login-container {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <form id="loginForm">
+            <h2>Autentificare</h2>
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p id="error-message" style="color: red;"></p>
+        </form>
+    </div>
+    <script>
+        document.getElementById('loginForm').onsubmit = async function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                window.location.href = '/home';
+            } else {
+                document.getElementById('error-message').textContent = result.error;
+            }
+        };
+    </script>
+</body>
+</html>

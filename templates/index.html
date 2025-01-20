@@ -9,9 +9,10 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background: url('{{ url_for('static', filename='es.jpeg') }}') no-repeat center center fixed;
             margin: 0;
             padding: 20px;
+            background-size: cover;
         }
         h1 {
             color: #333;
@@ -32,17 +33,29 @@
             font-weight: bold;
         }
         canvas {
-			width: 80vw;
-			height: 50vh;
-			max-width: 1000px;
-			margin: 20px auto;
-			background-color: white;
-			border: 1px solid #ccc;
-			border-radius: 5px;
-		}
+            width: 80vw;
+            height: 50vh;
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <button class="logout-button" onclick="logout()">Logout</button>
     <h1>Dashboard Monitorizare Senzori</h1>
     <div id="status">
         <div class="sensor-status" id="sensorE">E: OK</div>
@@ -80,7 +93,6 @@
                 .then(data => {
                     if (data.length === 0) return;
 
-                    // Actualizează datele pentru grafic
                     sensorChart.data.labels = data.map(entry => entry.timestamp);
                     sensorChart.data.datasets[0].data = data.map(entry => entry.values.E);
                     sensorChart.data.datasets[1].data = data.map(entry => entry.values.S);
@@ -89,7 +101,6 @@
 
                     sensorChart.update();
 
-                    // Actualizează statusul senzorilor
                     const latest = data[data.length - 1];
                     updateStatus("sensorE", latest.values.E);
                     updateStatus("sensorS", latest.values.S);
@@ -102,13 +113,18 @@
 
         function updateStatus(elementId, value) {
             const elem = document.getElementById(elementId);
-            if (value < 100) {
+            if (value < 200) {
                 elem.style.backgroundColor = 'red';
                 elem.textContent = `${elementId.slice(-1)}: Alertă`;
             } else {
                 elem.style.backgroundColor = 'lightgreen';
                 elem.textContent = `${elementId.slice(-1)}: OK`;
             }
+        }
+
+        function logout() {
+            fetch('/logout', { method: 'POST' })
+                .then(() => window.location.href = '/');
         }
 
         setInterval(updateData, 2000);
